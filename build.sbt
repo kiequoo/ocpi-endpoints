@@ -121,4 +121,3 @@ val `example` = project
       commonSettings,
       description := "OCPI endpoints example app"
     )
-
