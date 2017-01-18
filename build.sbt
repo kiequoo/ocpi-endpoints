@@ -90,6 +90,15 @@ val `ocpi-endpoints-cpo-locations` = project
     libraryDependencies := specs2 ++ akkaHttpTestKitSpecs2
   )
 
+val `ocpi-endpoints-cpo-tokens` = project
+  .enablePlugins(OssLibPlugin)
+  .dependsOn(`ocpi-endpoints-common`)
+  .settings(
+    commonSettings,
+    description := "OCPI endpoints CPO Tokens",
+    libraryDependencies := specs2 ++ akkaHttpTestKitSpecs2
+  )
+
 val `ocpi-endpoints-toplevel` = project
   .enablePlugins(OssLibPlugin)
   .dependsOn(`ocpi-endpoints-common`)
@@ -107,7 +116,8 @@ val `ocpi-endpoints-root` = (project in file("."))
     `ocpi-endpoints-common`,
     `ocpi-endpoints-toplevel`,
     `ocpi-endpoints-msp-locations`,
-    `ocpi-endpoints-cpo-locations`)
+    `ocpi-endpoints-cpo-locations`,
+    `ocpi-endpoints-cpo-tokens`)
   .enablePlugins(OssLibPlugin)
   .settings(
     commonSettings,
@@ -115,9 +125,9 @@ val `ocpi-endpoints-root` = (project in file("."))
   )
 
 val `example` = project
-    .enablePlugins(AppPlugin)
-    .dependsOn(`ocpi-endpoints-toplevel`)
-    .settings(
-      commonSettings,
-      description := "OCPI endpoints example app"
-    )
+  .enablePlugins(AppPlugin)
+  .dependsOn(`ocpi-endpoints-toplevel`)
+  .settings(
+    commonSettings,
+    description := "OCPI endpoints example app"
+  )
