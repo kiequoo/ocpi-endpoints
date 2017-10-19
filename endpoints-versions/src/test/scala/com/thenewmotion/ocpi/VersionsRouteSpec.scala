@@ -132,6 +132,8 @@ class VersionsRouteSpec extends Specification with Specs2RouteTest with Mockito{
       override val currentTime = ZonedDateTime.parse("2010-01-01T00:00:00Z")
     }
 
+    import com.thenewmotion.ocpi.msgs.v2_1.DefaultJsonProtocol._
+
     val testRoute =
       (pathPrefix("cpo") & pathPrefix("versions")) {
         handleRejections(OcpiRejectionHandler.Default) {
