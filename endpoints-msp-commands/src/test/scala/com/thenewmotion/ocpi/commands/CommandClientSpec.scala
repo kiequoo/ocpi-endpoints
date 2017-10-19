@@ -26,7 +26,9 @@ import com.thenewmotion.ocpi.msgs.v2_1.Locations.{EvseUid, LocationId}
 
 class CommandClientSpec(implicit ee: ExecutionEnv) extends Specification with FutureMatchers {
 
+  import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
   import com.thenewmotion.ocpi.msgs.v2_1.CommandsJsonProtocol._
+  import com.thenewmotion.ocpi.msgs.v2_1.DefaultJsonProtocol._
 
   "MSP Command client" should {
 
