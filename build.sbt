@@ -178,7 +178,7 @@ val `endpoints-versions` = project
 
 val `endpoints-registration` = project
   .enablePlugins(OssLibPlugin)
-  .dependsOn(`endpoints-common`, `msgs-spray-json`)
+  .dependsOn(`endpoints-common`, `msgs-spray-json` % "test->test")
   .settings(
     commonSettings,
     name := "ocpi-endpoints-registration",
@@ -188,8 +188,7 @@ val `endpoints-registration` = project
 
 val `example` = project
   .enablePlugins(AppPlugin)
-  .dependsOn(`endpoints-registration`)
-  .dependsOn(`endpoints-versions`)
+  .dependsOn(`endpoints-registration`, `endpoints-versions`, `msgs-spray-json`)
   .settings(
     commonSettings,
     publish := { },
@@ -201,6 +200,7 @@ val `ocpi-endpoints-root` = (project in file("."))
     `prelude`,
     `msgs`,
     `msgs-spray-json`,
+    `msgs-circe`,
     `endpoints-common`,
     `endpoints-versions`,
     `endpoints-registration`,
