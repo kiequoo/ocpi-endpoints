@@ -148,7 +148,7 @@ val `endpoints-msp-commands` = project
 
 val `endpoints-cpo-locations` = project
   .enablePlugins(OssLibPlugin)
-  .dependsOn(`endpoints-common`, `msgs-spray-json`)
+  .dependsOn(`endpoints-common`, `msgs-spray-json` % "test->test")
   .settings(
     commonSettings,
     name := "ocpi-endpoints-cpo-locations",
