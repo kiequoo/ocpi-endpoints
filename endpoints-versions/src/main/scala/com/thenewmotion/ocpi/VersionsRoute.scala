@@ -12,7 +12,6 @@ import common.OcpiExceptionHandler
 import msgs.{ErrorResp, GlobalPartyId, SuccessResp, Url, Versions}
 import msgs.OcpiStatusCode._
 import msgs.Versions._
-
 import scala.concurrent.Future
 
 object VersionsRoute {
@@ -21,7 +20,13 @@ object VersionsRoute {
   )
 }
 
-class VersionsRoute(versions: => Future[Map[VersionNumber, OcpiVersionConfig]]) extends JsonApi {
+class VersionsRoute(
+  versions: => Future[Map[VersionNumber, OcpiVersionConfig]]
+)(
+  implicit successRespListVerM: ToEntityMarshaller[SuccessResp[List[Versions.Version]]],
+  successVerDetM: ToEntityMarshaller[SuccessResp[VersionDetails]],
+  errorM: ToEntityMarshaller[ErrorResp]
+) extends JsonApi {
 
   import VersionsRoute._
 
@@ -38,8 +43,6 @@ class VersionsRoute(versions: => Future[Map[VersionNumber, OcpiVersionConfig]]) 
 
   def versionsRoute(
     uri: Uri
-  )(
-    implicit successRespListVerM: ToEntityMarshaller[SuccessResp[List[Versions.Version]]]
   ): Route = onSuccess(versions) {
     case v if v.nonEmpty =>
       complete(SuccessResp(
@@ -56,8 +59,6 @@ class VersionsRoute(versions: => Future[Map[VersionNumber, OcpiVersionConfig]]) 
     versionInfo: OcpiVersionConfig,
     uri: Uri,
     apiUser: GlobalPartyId
-  )(
-    implicit successVerDetM: ToEntityMarshaller[SuccessResp[VersionDetails]]
   ): Route =
     pathEndOrSingleSlash {
       complete(
@@ -87,10 +88,6 @@ class VersionsRoute(versions: => Future[Map[VersionNumber, OcpiVersionConfig]]) 
   def route(
     apiUser: GlobalPartyId,
     securedConnection: Boolean = true
-  )(
-    implicit errorM: ToEntityMarshaller[ErrorResp],
-    successVerDetM: ToEntityMarshaller[SuccessResp[VersionDetails]],
-    successRespListVerM: ToEntityMarshaller[SuccessResp[List[Versions.Version]]]
   ): Route = {
     (handleRejections(VersionRejections.Handler) & handleExceptions(OcpiExceptionHandler.Default)) {
       extractUri { reqUri =>

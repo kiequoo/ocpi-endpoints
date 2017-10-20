@@ -14,17 +14,21 @@ import com.thenewmotion.ocpi.msgs.v2_1.Credentials.Creds
 import msgs.Ownership.{Ours, Theirs}
 import msgs.{ErrorResp, GlobalPartyId, SuccessResp}
 
-class RegistrationRoute(service: RegistrationService)(implicit mat: Materializer) extends JsonApi {
+class RegistrationRoute(
+  service: RegistrationService
+)(
+  implicit mat: Materializer,
+  errorM: ToEntityMarshaller[ErrorResp],
+  succOurCredsM: ToEntityMarshaller[SuccessResp[Creds[Ours]]],
+  succUnitM: ToEntityMarshaller[SuccessResp[Unit]],
+  theirCredsU: FromEntityUnmarshaller[Creds[Theirs]]
+) extends JsonApi {
 
   def route(
     accessedVersion: VersionNumber,
     user: GlobalPartyId
   )(
-    implicit ec: ExecutionContext,
-    errorM: ToEntityMarshaller[ErrorResp],
-    succOurCredsM: ToEntityMarshaller[SuccessResp[Creds[Ours]]],
-    succUnitM: ToEntityMarshaller[SuccessResp[Unit]],
-    theirCredsU: FromEntityUnmarshaller[Creds[Theirs]],
+    implicit ec: ExecutionContext
   ): Route = {
     post {
       entity(as[Creds[Theirs]]) { credsToConnectToThem =>

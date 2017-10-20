@@ -17,6 +17,12 @@ import scala.concurrent.ExecutionContext
 
 class CpoTokensRoute(
   service: CpoTokensService
+)(
+  implicit successTokenM: ToEntityMarshaller[SuccessResp[Token]],
+  successUnitM: ToEntityMarshaller[SuccessResp[Unit]],
+  errorM: ToEntityMarshaller[ErrorResp],
+  tokenU: FromEntityUnmarshaller[Token],
+  tokenPU: FromEntityUnmarshaller[TokenPatch]
 ) extends JsonApi with EitherUnmarshalling with OcpiDirectives {
 
   implicit def tokenErrorResp(
@@ -37,12 +43,7 @@ class CpoTokensRoute(
   def route(
     apiUser: GlobalPartyId
   )(
-    implicit executionContext: ExecutionContext,
-    successTokenM: ToEntityMarshaller[SuccessResp[Token]],
-    successUnitM: ToEntityMarshaller[SuccessResp[Unit]],
-    errorM: ToEntityMarshaller[ErrorResp],
-    tokenU: FromEntityUnmarshaller[Token],
-    tokenPU: FromEntityUnmarshaller[TokenPatch]
+    implicit executionContext: ExecutionContext
   ): Route =
     handleRejections(OcpiRejectionHandler.Default) {
       (authPathPrefixGlobalPartyIdEquality(apiUser) & pathPrefix(TokenUidSegment)) { tokenUid =>

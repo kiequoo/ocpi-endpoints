@@ -21,6 +21,12 @@ class CpoLocationsRoute(
   val DefaultLimit: Int = 1000,
   val MaxLimit: Int = 1000,
   currentTime: => ZonedDateTime = ZonedDateTime.now
+)(
+  implicit errorM: ToEntityMarshaller[ErrorResp],
+  successIterableLocM: ToEntityMarshaller[SuccessResp[Iterable[Location]]],
+  successLocM: ToEntityMarshaller[SuccessResp[Location]],
+  successEvseM: ToEntityMarshaller[SuccessResp[Evse]],
+  successConnM: ToEntityMarshaller[SuccessResp[Connector]],
 ) extends JsonApi with PaginatedRoute with EitherUnmarshalling {
 
   private val DefaultErrorMsg = Some("An error occurred.")
@@ -40,12 +46,7 @@ class CpoLocationsRoute(
   def route(
     apiUser: GlobalPartyId
   )(
-    implicit executionContext: ExecutionContext,
-    errorM: ToEntityMarshaller[ErrorResp],
-    successIterableLocM: ToEntityMarshaller[SuccessResp[Iterable[Location]]],
-    successLocM: ToEntityMarshaller[SuccessResp[Location]],
-    successEvseM: ToEntityMarshaller[SuccessResp[Evse]],
-    successConnM: ToEntityMarshaller[SuccessResp[Connector]],
+    implicit executionContext: ExecutionContext
   ): Route =
     handleRejections(OcpiRejectionHandler.Default) (routeWithoutRh(apiUser))
 
@@ -57,11 +58,7 @@ class CpoLocationsRoute(
     apiUser: GlobalPartyId
   )(
     implicit executionContext: ExecutionContext,
-    errorM: ToEntityMarshaller[ErrorResp],
-    successIterableLocM: ToEntityMarshaller[SuccessResp[Iterable[Location]]],
-    successLocM: ToEntityMarshaller[SuccessResp[Location]],
-    successEvseM: ToEntityMarshaller[SuccessResp[Evse]],
-    successConnM: ToEntityMarshaller[SuccessResp[Connector]],
+
   ) = {
     get {
       pathEndOrSingleSlash {

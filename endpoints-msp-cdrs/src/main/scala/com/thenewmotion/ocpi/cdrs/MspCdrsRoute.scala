@@ -17,6 +17,11 @@ import scala.concurrent.ExecutionContext
 
 class MspCdrsRoute(
   service: MspCdrsService
+)(
+  implicit errorM: ToEntityMarshaller[ErrorResp],
+  successUnit: ToEntityMarshaller[SuccessResp[Unit]],
+  successCdr: ToEntityMarshaller[SuccessResp[Cdr]],
+  cdrU: FromEntityUnmarshaller[Cdr]
 ) extends JsonApi with EitherUnmarshalling with OcpiDirectives {
 
   implicit def cdrsErrorResp(
@@ -35,11 +40,7 @@ class MspCdrsRoute(
   def route(
     apiUser: GlobalPartyId
   )(
-    implicit executionContext: ExecutionContext,
-    errorM: ToEntityMarshaller[ErrorResp],
-    successUnit: ToEntityMarshaller[SuccessResp[Unit]],
-    successCdr: ToEntityMarshaller[SuccessResp[Cdr]],
-    cdrU: FromEntityUnmarshaller[Cdr]
+    implicit executionContext: ExecutionContext
   ): Route =
     handleRejections(OcpiRejectionHandler.Default)(routeWithoutRh(apiUser))
 
@@ -48,11 +49,7 @@ class MspCdrsRoute(
   private[cdrs] def routeWithoutRh(
     apiUser: GlobalPartyId
   )(
-    implicit executionContext: ExecutionContext,
-    errorM: ToEntityMarshaller[ErrorResp],
-    successUnit: ToEntityMarshaller[SuccessResp[Unit]],
-    successCdr: ToEntityMarshaller[SuccessResp[Cdr]],
-    cdrU: FromEntityUnmarshaller[Cdr]
+    implicit executionContext: ExecutionContext
   ) = {
     authPathPrefixGlobalPartyIdEquality(apiUser) {
       (post & pathEndOrSingleSlash) {

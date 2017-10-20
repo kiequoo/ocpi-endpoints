@@ -17,6 +17,18 @@ import scala.concurrent.ExecutionContext
 
 class MspLocationsRoute(
   service: MspLocationsService
+)(
+  implicit locationU: FromEntityUnmarshaller[Location],
+  locationPU: FromEntityUnmarshaller[LocationPatch],
+  evseU: FromEntityUnmarshaller[Evse],
+  evsePU: FromEntityUnmarshaller[EvsePatch],
+  connectorU: FromEntityUnmarshaller[Connector],
+  connectorPU: FromEntityUnmarshaller[ConnectorPatch],
+  errorM: ToEntityMarshaller[ErrorResp],
+  successUnitM: ToEntityMarshaller[SuccessResp[Unit]],
+  successLocM: ToEntityMarshaller[SuccessResp[Location]],
+  successEvseM: ToEntityMarshaller[SuccessResp[Evse]],
+  successConnectorM: ToEntityMarshaller[SuccessResp[Connector]]
 ) extends JsonApi with EitherUnmarshalling with OcpiDirectives {
 
   implicit def locationsErrorResp(
@@ -35,18 +47,7 @@ class MspLocationsRoute(
   def route(
     apiUser: GlobalPartyId
   )(
-    implicit executionContext: ExecutionContext,
-    locationU: FromEntityUnmarshaller[Location],
-    locationPU: FromEntityUnmarshaller[LocationPatch],
-    evseU: FromEntityUnmarshaller[Evse],
-    evsePU: FromEntityUnmarshaller[EvsePatch],
-    connectorU: FromEntityUnmarshaller[Connector],
-    connectorPU: FromEntityUnmarshaller[ConnectorPatch],
-    errorM: ToEntityMarshaller[ErrorResp],
-    successUnitM: ToEntityMarshaller[SuccessResp[Unit]],
-    successLocM: ToEntityMarshaller[SuccessResp[Location]],
-    successEvseM: ToEntityMarshaller[SuccessResp[Evse]],
-    successConnectorM: ToEntityMarshaller[SuccessResp[Connector]]
+    implicit executionContext: ExecutionContext
   ): Route =
     handleRejections(OcpiRejectionHandler.Default)(routeWithoutRh(apiUser))
 
@@ -57,18 +58,7 @@ class MspLocationsRoute(
   private[locations] def routeWithoutRh(
     apiUser: GlobalPartyId
   )(
-    implicit executionContext: ExecutionContext,
-    locationU: FromEntityUnmarshaller[Location],
-    locationPU: FromEntityUnmarshaller[LocationPatch],
-    evseU: FromEntityUnmarshaller[Evse],
-    evsePU: FromEntityUnmarshaller[EvsePatch],
-    connectorU: FromEntityUnmarshaller[Connector],
-    connectorPU: FromEntityUnmarshaller[ConnectorPatch],
-    errorM: ToEntityMarshaller[ErrorResp],
-    successUnitM: ToEntityMarshaller[SuccessResp[Unit]],
-    successLocM: ToEntityMarshaller[SuccessResp[Location]],
-    successEvseM: ToEntityMarshaller[SuccessResp[Evse]],
-    successConnectorM: ToEntityMarshaller[SuccessResp[Connector]]
+    implicit executionContext: ExecutionContext
   ) = {
     (authPathPrefixGlobalPartyIdEquality(apiUser) & pathPrefix(LocationIdSegment)) { locId =>
       pathEndOrSingleSlash {

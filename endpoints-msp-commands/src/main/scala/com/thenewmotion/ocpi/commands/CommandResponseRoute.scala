@@ -14,22 +14,19 @@ import scala.concurrent.Future
 
 class CommandResponseRoute(
   callback: (GlobalPartyId, UUID, CommandResponseType) => Future[Option[SuccessResp[Unit]]]
+)(
+  implicit errorM: ToEntityMarshaller[ErrorResp],
+  succM: ToEntityMarshaller[SuccessResp[Unit]],
+  reqUm: FromEntityUnmarshaller[CommandResponse]
 ) extends JsonApi with EitherUnmarshalling with OcpiDirectives {
 
   def route(
     apiUser: GlobalPartyId
-  )(
-    implicit errorM: ToEntityMarshaller[ErrorResp],
-    succM: ToEntityMarshaller[SuccessResp[Unit]],
-    reqUm: FromEntityUnmarshaller[CommandResponse]
   ): Route =
     handleRejections(OcpiRejectionHandler.Default)(routeWithoutRh(apiUser))
 
   private[commands] def routeWithoutRh(
     apiUser: GlobalPartyId
-  )(
-    implicit succM: ToEntityMarshaller[SuccessResp[Unit]],
-    reqUm: FromEntityUnmarshaller[CommandResponse]
   ) =
     (pathPrefix(JavaUUID) & pathEndOrSingleSlash) { commandId =>
       post {

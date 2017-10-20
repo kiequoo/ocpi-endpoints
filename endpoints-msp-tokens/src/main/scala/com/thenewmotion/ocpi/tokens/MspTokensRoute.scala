@@ -20,6 +20,11 @@ class MspTokensRoute(
   service: MspTokensService,
   val DefaultLimit: Int = 1000,
   val MaxLimit: Int = 1000
+)(
+  implicit pagTokensM: ToEntityMarshaller[SuccessResp[Iterable[Token]]],
+  authM: ToEntityMarshaller[SuccessResp[AuthorizationInfo]],
+  errorM: ToEntityMarshaller[ErrorResp],
+  locationReferencesU: FromEntityUnmarshaller[LocationReferences]
 ) extends JsonApi with PaginatedRoute with EitherUnmarshalling {
 
   implicit def locationsErrorResp(implicit errorMarshaller: ToResponseMarshaller[(StatusCode, ErrorResp)],
@@ -46,11 +51,7 @@ class MspTokensRoute(
   def route(
     apiUser: GlobalPartyId
   )(
-    implicit ec: ExecutionContext,
-    pagTokensM: ToEntityMarshaller[SuccessResp[Iterable[Token]]],
-    authM: ToEntityMarshaller[SuccessResp[AuthorizationInfo]],
-    errorM: ToEntityMarshaller[ErrorResp],
-    locationReferencesU: FromEntityUnmarshaller[LocationReferences]
+    implicit ec: ExecutionContext
   ): Route =
     get {
       pathEndOrSingleSlash {
