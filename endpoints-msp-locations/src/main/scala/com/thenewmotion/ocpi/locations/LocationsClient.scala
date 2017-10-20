@@ -15,7 +15,11 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.thenewmotion.ocpi.msgs.Ownership.Ours
 import msgs.AuthToken
 
-class LocationsClient(implicit http: HttpExt) extends OcpiClient {
+class LocationsClient(
+  implicit http: HttpExt,
+  successU: SucUnMar[Location],
+  errorU: ErrUnMar
+) extends OcpiClient {
 
   def getLocations(
     uri: Uri,
@@ -25,8 +29,6 @@ class LocationsClient(implicit http: HttpExt) extends OcpiClient {
   )(
     implicit ec: ExecutionContext,
     mat: Materializer,
-    successU: SucUnMar[Location],
-    errorU: ErrUnMar
   ): Future[ErrorRespOr[Iterable[Location]]] =
     traversePaginatedResource[Location](uri, auth, dateFrom, dateTo)
 
@@ -37,9 +39,7 @@ class LocationsClient(implicit http: HttpExt) extends OcpiClient {
     dateTo: Option[ZonedDateTime] = None
   )(
     implicit ec: ExecutionContext,
-    mat: Materializer,
-    successU: SucUnMar[Location],
-    errorU: ErrUnMar
+    mat: Materializer
   ): Source[Location, NotUsed] =
     PaginatedSource[Location](http, uri, auth, dateFrom, dateTo)
 

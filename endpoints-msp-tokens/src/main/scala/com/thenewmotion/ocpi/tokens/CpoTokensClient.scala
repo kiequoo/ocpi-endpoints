@@ -15,16 +15,21 @@ import cats.syntax.either._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CpoTokensClient(implicit http: HttpExt) extends OcpiClient {
+class CpoTokensClient(
+  implicit http: HttpExt,
+  errorU: ErrUnMar,
+  successTokenU: FromByteStringUnmarshaller[SuccessResp[Token]],
+  successUnitU: FromByteStringUnmarshaller[SuccessResp[Unit]],
+  tokenM: ToEntityMarshaller[Token],
+  tokenPM: ToEntityMarshaller[TokenPatch]
+) extends OcpiClient {
 
   def getToken(
     tokenUri: ClientObjectUri,
     authToken: AuthToken[Ours],
     tokenUid: TokenUid
   )(implicit ec: ExecutionContext,
-    mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Token]],
-    errorU: ErrUnMar
+    mat: Materializer
   ): Future[ErrorRespOr[Token]] =
     singleRequest[Token](Get(tokenUri.value), authToken).map {
       _.bimap(err => {
@@ -38,9 +43,7 @@ class CpoTokensClient(implicit http: HttpExt) extends OcpiClient {
     authToken: AuthToken[Ours],
     rb: Uri => HttpRequest
   )(implicit ec: ExecutionContext,
-    mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Unit]],
-    errorU: ErrUnMar
+    mat: Materializer
   ): Future[ErrorRespOr[Unit]] =
     singleRequest[Unit](rb(tokenUri.value), authToken).map {
       _.bimap(err => {
@@ -55,9 +58,6 @@ class CpoTokensClient(implicit http: HttpExt) extends OcpiClient {
     token: Token
   )(implicit ec: ExecutionContext,
     mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Unit]],
-    errorU: ErrUnMar,
-    tokenM: ToEntityMarshaller[Token]
   ): Future[ErrorRespOr[Unit]] =
     push(tokenUri, authToken, uri => Put(uri, token))
 
@@ -68,9 +68,6 @@ class CpoTokensClient(implicit http: HttpExt) extends OcpiClient {
   )(
     implicit ec: ExecutionContext,
     mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Unit]],
-    errorU: ErrUnMar,
-    tokenM: ToEntityMarshaller[TokenPatch]
   ): Future[ErrorRespOr[Unit]] =
     push(tokenUri, authToken, uri => Patch(uri, patch))
 

@@ -12,7 +12,20 @@ import com.thenewmotion.ocpi.msgs.Ownership.Ours
 import com.thenewmotion.ocpi.msgs.v2_1.Locations._
 import cats.syntax.either._
 
-class MspLocationsClient(implicit http: HttpExt) extends OcpiClient {
+class MspLocationsClient(
+  implicit http: HttpExt,
+  successUnitU: FromByteStringUnmarshaller[SuccessResp[Unit]],
+  errorU: ErrUnMar,
+  successLocU: FromByteStringUnmarshaller[SuccessResp[Location]],
+  successEvseU: FromByteStringUnmarshaller[SuccessResp[Evse]],
+  successConnU: FromByteStringUnmarshaller[SuccessResp[Connector]],
+  locationM: ToEntityMarshaller[Location],
+  evseM: ToEntityMarshaller[Evse],
+  connectorM: ToEntityMarshaller[Connector],
+  locationPM: ToEntityMarshaller[LocationPatch],
+  evsePM: ToEntityMarshaller[EvsePatch],
+  connectorPM: ToEntityMarshaller[ConnectorPatch]
+) extends OcpiClient {
 
   private def get[T](
     uri: ClientObjectUri,
@@ -21,7 +34,6 @@ class MspLocationsClient(implicit http: HttpExt) extends OcpiClient {
     implicit ec: ExecutionContext,
     mat: Materializer,
     successU: FromByteStringUnmarshaller[SuccessResp[T]],
-    errorU: ErrUnMar
   ): Future[ErrorRespOr[T]] =
     singleRequest[T](Get(uri.value), authToken).map {
       _.bimap(err => {
@@ -36,9 +48,7 @@ class MspLocationsClient(implicit http: HttpExt) extends OcpiClient {
     data: T
   )(
     implicit ec: ExecutionContext,
-    mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Unit]],
-    errorU: ErrUnMar
+    mat: Materializer
   ): Future[ErrorRespOr[Unit]] =
     singleRequest[Unit](Put(uri.value, data), authToken).map {
       _.bimap(err => {
@@ -54,8 +64,6 @@ class MspLocationsClient(implicit http: HttpExt) extends OcpiClient {
   )(
     implicit ec: ExecutionContext,
     mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Unit]],
-    errorU: ErrUnMar
   ): Future[ErrorRespOr[Unit]] =
     singleRequest[Unit](Patch(uri.value, patch), authToken).map {
       _.bimap(err => {
@@ -69,9 +77,7 @@ class MspLocationsClient(implicit http: HttpExt) extends OcpiClient {
     authToken: AuthToken[Ours]
   )(
     implicit ec: ExecutionContext,
-    mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Location]],
-    errorU: ErrUnMar
+    mat: Materializer
   ): Future[ErrorRespOr[Location]] =
     get(uri, authToken)
 
@@ -81,8 +87,6 @@ class MspLocationsClient(implicit http: HttpExt) extends OcpiClient {
   )(
     implicit ec: ExecutionContext,
     mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Evse]],
-    errorU: ErrUnMar
   ): Future[ErrorRespOr[Evse]] =
     get(uri, authToken)
 
@@ -92,8 +96,6 @@ class MspLocationsClient(implicit http: HttpExt) extends OcpiClient {
   )(
     implicit ec: ExecutionContext,
     mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Connector]],
-    errorU: ErrUnMar
   ): Future[ErrorRespOr[Connector]] =
     get(uri, authToken)
 
@@ -104,9 +106,6 @@ class MspLocationsClient(implicit http: HttpExt) extends OcpiClient {
   )(
     implicit ec: ExecutionContext,
     mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Unit]],
-    errorU: ErrUnMar,
-    locationM: ToEntityMarshaller[Location]
   ): Future[ErrorRespOr[Unit]] =
     upload(uri, authToken, location)
 
@@ -116,10 +115,7 @@ class MspLocationsClient(implicit http: HttpExt) extends OcpiClient {
     evse: Evse
   )(
     implicit ec: ExecutionContext,
-    mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Unit]],
-    errorU: ErrUnMar,
-    evseM: ToEntityMarshaller[Evse]
+    mat: Materializer
   ): Future[ErrorRespOr[Unit]] =
     upload(uri, authToken, evse)
 
@@ -130,9 +126,6 @@ class MspLocationsClient(implicit http: HttpExt) extends OcpiClient {
   )(
     implicit ec: ExecutionContext,
     mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Unit]],
-    errorU: ErrUnMar,
-    connectorM: ToEntityMarshaller[Connector]
   ): Future[ErrorRespOr[Unit]] =
     upload(uri, authToken, connector)
 
@@ -142,10 +135,7 @@ class MspLocationsClient(implicit http: HttpExt) extends OcpiClient {
     location: LocationPatch
   )(
     implicit ec: ExecutionContext,
-    mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Unit]],
-    errorU: ErrUnMar,
-    locationM: ToEntityMarshaller[LocationPatch]
+    mat: Materializer
   ): Future[ErrorRespOr[Unit]] =
     update(uri, authToken, location)
 
@@ -155,10 +145,7 @@ class MspLocationsClient(implicit http: HttpExt) extends OcpiClient {
     evse: EvsePatch
   )(
     implicit ec: ExecutionContext,
-    mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Unit]],
-    errorU: ErrUnMar,
-    evseM: ToEntityMarshaller[EvsePatch]
+    mat: Materializer
   ): Future[ErrorRespOr[Unit]] =
     update(uri, authToken, evse)
 
@@ -168,10 +155,7 @@ class MspLocationsClient(implicit http: HttpExt) extends OcpiClient {
     connector: ConnectorPatch
   )(
     implicit ec: ExecutionContext,
-    mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[Unit]],
-    errorU: ErrUnMar,
-    connectorM: ToEntityMarshaller[ConnectorPatch]
+    mat: Materializer
   ): Future[ErrorRespOr[Unit]] =
     update(uri, authToken, connector)
 }

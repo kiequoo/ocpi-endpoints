@@ -15,7 +15,11 @@ import cats.syntax.either._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CommandClient(implicit http: HttpExt) extends OcpiClient {
+class CommandClient(
+  implicit http: HttpExt,
+  errorU: ErrUnMar,
+  sucU: FromByteStringUnmarshaller[SuccessResp[CommandResponse]]
+) extends OcpiClient {
 
   def sendCommand[C <: Command : ToEntityMarshaller](
     commandsUri: Uri,
@@ -23,8 +27,7 @@ class CommandClient(implicit http: HttpExt) extends OcpiClient {
     command: C
   )(
     implicit ec: ExecutionContext,
-    mat: Materializer,
-    errorU: ErrUnMar, sucU: FromByteStringUnmarshaller[SuccessResp[CommandResponse]]
+    mat: Materializer
   ): Future[ErrorRespOr[CommandResponse]] = {
 
     val commandUri = commandsUri.copy(path = commandsUri.path / command.name.name)

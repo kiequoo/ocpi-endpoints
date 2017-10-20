@@ -15,7 +15,11 @@ import com.thenewmotion.ocpi.msgs.Ownership.Ours
 import com.thenewmotion.ocpi.msgs.v2_1.Cdrs.Cdr
 import msgs.AuthToken
 
-class CdrsClient(implicit http: HttpExt) extends OcpiClient {
+class CdrsClient(
+  implicit http: HttpExt,
+  successU: SucUnMar[Cdr],
+  errorU: ErrUnMar
+) extends OcpiClient {
 
   def getCdrs(
     uri: Uri,
@@ -25,8 +29,6 @@ class CdrsClient(implicit http: HttpExt) extends OcpiClient {
   )(
     implicit ec: ExecutionContext,
     mat: Materializer,
-    successU: SucUnMar[Cdr],
-    errorU: ErrUnMar
   ): Future[ErrorRespOr[Iterable[Cdr]]] =
     traversePaginatedResource[Cdr](uri, auth, dateFrom, dateTo)
 
@@ -37,9 +39,7 @@ class CdrsClient(implicit http: HttpExt) extends OcpiClient {
     dateTo: Option[ZonedDateTime] = None
   )(
     implicit ec: ExecutionContext,
-    mat: Materializer,
-    successU: SucUnMar[Cdr],
-    errorU: ErrUnMar
+    mat: Materializer
   ): Source[Cdr, NotUsed] =
     PaginatedSource[Cdr](http, uri, auth, dateFrom, dateTo)
 

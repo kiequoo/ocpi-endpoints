@@ -15,7 +15,12 @@ import cats.syntax.either._
 
 import scala.concurrent._
 
-class MspTokensClient(implicit http: HttpExt) extends OcpiClient {
+class MspTokensClient(
+  implicit http: HttpExt,
+  successU: FromByteStringUnmarshaller[SuccessResp[AuthorizationInfo]],
+  errorU: ErrUnMar,
+  locRefM: ToEntityMarshaller[LocationReferences]
+) extends OcpiClient {
 
   def authorize(
     endpointUri: Uri,
@@ -24,10 +29,7 @@ class MspTokensClient(implicit http: HttpExt) extends OcpiClient {
     locationReferences: Option[LocationReferences]
   )(
     implicit ec: ExecutionContext,
-    mat: Materializer,
-    successU: FromByteStringUnmarshaller[SuccessResp[AuthorizationInfo]],
-    errorU: ErrUnMar,
-    locRefM: ToEntityMarshaller[LocationReferences]
+    mat: Materializer
   ): Future[ErrorRespOr[AuthorizationInfo]] = {
     val authorizeUri = endpointUri.withPath(endpointUri.path / tokenUid.value / "authorize")
     singleRequest[AuthorizationInfo](Post(authorizeUri, locationReferences), authToken) map {
