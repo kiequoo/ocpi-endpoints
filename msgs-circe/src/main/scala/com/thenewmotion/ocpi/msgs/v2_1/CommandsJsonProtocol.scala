@@ -7,6 +7,7 @@ import CommonJsonProtocol._
 import TokensJsonProtocol._
 import LocationsJsonProtocol._
 import SessionJsonProtocol._
+import com.thenewmotion.ocpi.msgs.v2_1.Commands.Command.UnlockConnector
 import io.circe.generic.extras.semiauto._
 
 trait CommandsJsonProtocol {
@@ -29,8 +30,8 @@ trait CommandsJsonProtocol {
   implicit val stopSessionE: Encoder[Command.StopSession] = deriveEncoder
   implicit val stopSessionD: Decoder[Command.StopSession] = deriveDecoder
 
-  implicit val unlockConnectorE: Encoder[CommandResponse] = deriveEncoder
-  implicit val unlockConnectorD: Decoder[CommandResponse] = deriveDecoder
+  implicit val unlockConnectorE: Encoder[UnlockConnector] = deriveEncoder
+  implicit val unlockConnectorD: Decoder[UnlockConnector] = deriveDecoder
 }
 
 object CommandsJsonProtocol extends CommandsJsonProtocol
