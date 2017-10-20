@@ -3,16 +3,17 @@ package tokens
 
 import java.time.ZonedDateTime
 
-import akka.http.scaladsl.marshalling.{Marshaller, ToResponseMarshaller}
+import akka.http.scaladsl.marshalling.{Marshaller, ToEntityMarshaller, ToResponseMarshaller}
 import akka.http.scaladsl.model.StatusCode
 import akka.http.scaladsl.model.StatusCodes.{NotFound, OK}
-import akka.http.scaladsl.server.Directive1
-import akka.http.scaladsl.unmarshalling.FromRequestUnmarshaller
+import akka.http.scaladsl.server.{Directive1, Route}
+import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, FromRequestUnmarshaller}
 import common.{EitherUnmarshalling, Pager, PaginatedRoute}
 import msgs.{ErrorResp, GlobalPartyId, SuccessResp}
 import msgs.OcpiStatusCode._
-import msgs.v2_1.Tokens.{LocationReferences, TokenUid}
+import msgs.v2_1.Tokens.{AuthorizationInfo, LocationReferences, Token, TokenUid}
 import tokens.AuthorizeError._
+
 import scala.concurrent.ExecutionContext
 
 class MspTokensRoute(
@@ -20,9 +21,6 @@ class MspTokensRoute(
   val DefaultLimit: Int = 1000,
   val MaxLimit: Int = 1000
 ) extends JsonApi with PaginatedRoute with EitherUnmarshalling {
-
-  import msgs.v2_1.DefaultJsonProtocol._
-  import msgs.v2_1.TokensJsonProtocol._
 
   implicit def locationsErrorResp(implicit errorMarshaller: ToResponseMarshaller[(StatusCode, ErrorResp)],
     statusMarshaller: ToResponseMarshaller[StatusCode]): ToResponseMarshaller[AuthorizeError] =
@@ -45,7 +43,15 @@ class MspTokensRoute(
 
   private val TokenUidSegment = Segment.map(TokenUid(_))
 
-  def route(apiUser: GlobalPartyId)(implicit ec: ExecutionContext) =
+  def route(
+    apiUser: GlobalPartyId
+  )(
+    implicit ec: ExecutionContext,
+    pagTokensM: ToEntityMarshaller[SuccessResp[Iterable[Token]]],
+    authM: ToEntityMarshaller[SuccessResp[AuthorizationInfo]],
+    errorM: ToEntityMarshaller[ErrorResp],
+    locationReferencesU: FromEntityUnmarshaller[LocationReferences]
+  ): Route =
     get {
       pathEndOrSingleSlash {
         paged { (pager: Pager, dateFrom: Option[ZonedDateTime], dateTo: Option[ZonedDateTime]) =>

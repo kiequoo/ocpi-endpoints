@@ -118,7 +118,7 @@ val `endpoints-msp-locations` = project
 
 val `endpoints-msp-tokens` = project
   .enablePlugins(OssLibPlugin)
-  .dependsOn(`endpoints-common`, `msgs-spray-json`)
+  .dependsOn(`endpoints-common`, `msgs-spray-json` % "test->test")
   .settings(
     commonSettings,
     name := "ocpi-endpoints-msp-tokens",

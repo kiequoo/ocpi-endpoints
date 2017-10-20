@@ -27,6 +27,10 @@ import com.thenewmotion.ocpi.ZonedDateTimeParser._
 
 class CpoTokensClientSpec(implicit ee: ExecutionEnv) extends Specification with FutureMatchers {
 
+  import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+  import com.thenewmotion.ocpi.msgs.v2_1.TokensJsonProtocol._
+  import com.thenewmotion.ocpi.msgs.v2_1.DefaultJsonProtocol._
+
   "CPO Tokens client" should {
 
     "Retrieve a Token as it is stored in the CPO system" in new TestScope {
