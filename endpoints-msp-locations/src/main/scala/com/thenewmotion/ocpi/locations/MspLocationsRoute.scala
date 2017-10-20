@@ -1,23 +1,23 @@
 package com.thenewmotion.ocpi
 package locations
 
-import akka.http.scaladsl.marshalling.ToResponseMarshaller
+import akka.http.scaladsl.marshalling.{ToEntityMarshaller, ToResponseMarshaller}
 import akka.http.scaladsl.model.StatusCode
 import akka.http.scaladsl.model.StatusCodes._
+import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
 import msgs.ErrorResp
 import common.{EitherUnmarshalling, OcpiDirectives, OcpiRejectionHandler}
 import locations.LocationsError._
 import msgs.v2_1.Locations._
 import msgs._
 import msgs.OcpiStatusCode._
+
 import scala.concurrent.ExecutionContext
 
 class MspLocationsRoute(
   service: MspLocationsService
 ) extends JsonApi with EitherUnmarshalling with OcpiDirectives {
-
-  import msgs.v2_1.DefaultJsonProtocol._
-  import msgs.v2_1.LocationsJsonProtocol._
 
   implicit def locationsErrorResp(
     implicit em: ToResponseMarshaller[(StatusCode, ErrorResp)]
@@ -32,14 +32,44 @@ class MspLocationsRoute(
     }
   }
 
-  def route(apiUser: GlobalPartyId)(implicit executionContext: ExecutionContext) =
+  def route(
+    apiUser: GlobalPartyId
+  )(
+    implicit executionContext: ExecutionContext,
+    locationU: FromEntityUnmarshaller[Location],
+    locationPU: FromEntityUnmarshaller[LocationPatch],
+    evseU: FromEntityUnmarshaller[Evse],
+    evsePU: FromEntityUnmarshaller[EvsePatch],
+    connectorU: FromEntityUnmarshaller[Connector],
+    connectorPU: FromEntityUnmarshaller[ConnectorPatch],
+    errorM: ToEntityMarshaller[ErrorResp],
+    successUnitM: ToEntityMarshaller[SuccessResp[Unit]],
+    successLocM: ToEntityMarshaller[SuccessResp[Location]],
+    successEvseM: ToEntityMarshaller[SuccessResp[Evse]],
+    successConnectorM: ToEntityMarshaller[SuccessResp[Connector]]
+  ): Route =
     handleRejections(OcpiRejectionHandler.Default)(routeWithoutRh(apiUser))
 
   private val LocationIdSegment = Segment.map(LocationId(_))
   private val EvseUidSegment = Segment.map(EvseUid(_))
   private val ConnectorIdSegment = Segment.map(ConnectorId(_))
 
-  private[locations] def routeWithoutRh(apiUser: GlobalPartyId)(implicit executionContext: ExecutionContext) = {
+  private[locations] def routeWithoutRh(
+    apiUser: GlobalPartyId
+  )(
+    implicit executionContext: ExecutionContext,
+    locationU: FromEntityUnmarshaller[Location],
+    locationPU: FromEntityUnmarshaller[LocationPatch],
+    evseU: FromEntityUnmarshaller[Evse],
+    evsePU: FromEntityUnmarshaller[EvsePatch],
+    connectorU: FromEntityUnmarshaller[Connector],
+    connectorPU: FromEntityUnmarshaller[ConnectorPatch],
+    errorM: ToEntityMarshaller[ErrorResp],
+    successUnitM: ToEntityMarshaller[SuccessResp[Unit]],
+    successLocM: ToEntityMarshaller[SuccessResp[Location]],
+    successEvseM: ToEntityMarshaller[SuccessResp[Evse]],
+    successConnectorM: ToEntityMarshaller[SuccessResp[Connector]]
+  ) = {
     (authPathPrefixGlobalPartyIdEquality(apiUser) & pathPrefix(LocationIdSegment)) { locId =>
       pathEndOrSingleSlash {
         put {
