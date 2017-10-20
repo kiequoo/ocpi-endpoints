@@ -23,6 +23,10 @@ import scala.concurrent.duration._
 
 class MspTokensClientSpec(implicit ee: ExecutionEnv) extends Specification with FutureMatchers {
 
+  import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+  import com.thenewmotion.ocpi.msgs.v2_1.TokensJsonProtocol._
+  import com.thenewmotion.ocpi.msgs.v2_1.DefaultJsonProtocol._
+
   "MSpTokensClient" should {
 
     "request authorization for a token and get it" in new TestScope {
