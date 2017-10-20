@@ -128,7 +128,7 @@ val `endpoints-msp-tokens` = project
 
 val `endpoints-msp-cdrs` = project
   .enablePlugins(OssLibPlugin)
-  .dependsOn(`endpoints-common`, `msgs-spray-json`)
+  .dependsOn(`endpoints-common`, `msgs-spray-json` % "test->test")
   .settings(
     commonSettings,
     name := "ocpi-endpoints-msp-cdrs",
