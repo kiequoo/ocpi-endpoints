@@ -168,7 +168,7 @@ val `endpoints-cpo-tokens` = project
 
 val `endpoints-versions` = project
   .enablePlugins(OssLibPlugin)
-  .dependsOn(`endpoints-common`, `msgs-spray-json`)
+  .dependsOn(`endpoints-common`, `msgs-spray-json` % "test->test")
   .settings(
     commonSettings,
     name := "ocpi-endpoints-versions",

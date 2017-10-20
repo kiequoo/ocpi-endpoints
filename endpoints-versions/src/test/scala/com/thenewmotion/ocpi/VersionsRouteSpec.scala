@@ -15,11 +15,12 @@ import org.specs2.mutable.Specification
 import org.specs2.specification.Scope
 import spray.json._
 import lenses.JsonLenses._
-import spray.json.DefaultJsonProtocol._
-
 import scala.concurrent.Future
 
 class VersionsRouteSpec extends Specification with Specs2RouteTest with Mockito{
+
+  import com.thenewmotion.ocpi.msgs.v2_1.VersionsJsonProtocol._
+  import com.thenewmotion.ocpi.msgs.v2_1.DefaultJsonProtocol._
 
   "Versions Route" should {
     "authenticate api calls with valid token info" in new VersionsScope {
